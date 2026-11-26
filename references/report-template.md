@@ -1,12 +1,12 @@
 # Report template
 
-Write the report in the user's language. Keep the structure; drop a section only if it would be empty, and say so in one line. No overall score of your own: the headline is the task test. Aim for about 1,200 words or fewer: one sentence of evidence per fix, no audit diary.
+Write the report in the user's language. Keep the structure; drop a section only if it would be empty, and say so in one line. "What I could not check" is never dropped. No overall score of your own: the headline is the task test. Aim for about 1,200 words or fewer: one sentence of evidence per fix, no audit diary.
 
 ```markdown
 # How agents read <site>
 
 **Task test: an agent given only the address answered <N> of <M> questions correctly.**
-<One or two sentences: what it got right, what it got wrong or could not find, which reader was used.>
+<One or two sentences: what it got right, what it got wrong or could not find, which reader was used. If a step did not run, name it in a few words.>
 
 **Fix first:**
 1. <The single most valuable fix, one line.>
@@ -17,6 +17,9 @@ Write the report in the user's language. Keep the structure; drop a section only
 | Question | Agent's answer (short) | Right? | Where it came from |
 |---|---|---|---|
 | Who is behind the site? | … | ✓ / ✗ / partly | home page HTML / llms.txt / guessed |
+
+## What I could not check
+- <Each step that did not run or ran only in part (the script, a real reader, the task test in a separate agent, the accessibility tree, search presence), why (no tool for it here, the page did not load, …), and which findings that leaves unconfirmed. If every step ran: "All steps ran.">
 
 ## What already works
 - <Bullets: real strengths, with evidence. Owners need to know what not to break.>

@@ -23,7 +23,18 @@ from html.parser import HTMLParser
 UA = 'Mozilla/5.0 (compatible; readable-by-agents/1.0)'
 AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot',
            'PerplexityBot', 'Google-Extended', 'CCBot', 'Applebot-Extended', 'Bytespider']
-PLACEHOLDERS = ['00:00:00', 'Loading…', 'Loading...', '{{', '}}', 'undefined', 'NaN', 'lorem ipsum']
+# Text that JavaScript was meant to replace. Leftovers are often glued to the word before them
+# ("Amsterdam00:00:00"), so a match may start mid-word. "NaN" and "undefined" are matched
+# case-sensitively, as JavaScript prints them, and not when a lowercase letter follows,
+# so "NaN" does not fire on "financial" or "Fernando".
+PLACEHOLDERS = {
+    '00:00:00': re.compile(r'00:00:00'),
+    'Loading…': re.compile(r'loading(?:…|\.\.\.)', re.I),
+    '{{ }}': re.compile(r'\{\{|\}\}'),
+    'undefined': re.compile(r'undefined(?![a-z])'),
+    'NaN': re.compile(r'NaN(?![a-z])'),
+    'lorem ipsum': re.compile(r'lorem ipsum', re.I),
+}
 # Links to documents in an online editor: fetch tools often get only the app shell, not the text.
 # "Publish to the web" (/pub) and export links serve plain text or a file, so they are left out.
 DOC_LINK = re.compile(r'https?://(docs|drive)\.google\.com/', re.I)
@@ -244,7 +255,7 @@ def inspect_page(url):
         'email_obfuscated': '/cdn-cgi/l/email-protection' in html, 'mailto': sorted(set(p.mailto))[:5],
         'linked_documents': sorted(set(p.doc_links))[:5],
         'glued_line_breaks': glued_breaks(html)[:8],
-        'placeholders_in_text': [s for s in PLACEHOLDERS if s.lower() in text.lower()],
+        'placeholders_in_text': [name for name, rx in PLACEHOLDERS.items() if rx.search(text)],
         'html_comments': len(p.comments), 'html_comment_samples': p.comments[:3],
         'images': {'total': p.img_total, 'with_alt': p.img_alt, 'empty_alt': p.img_alt_empty, 'no_alt': p.img_no_alt},
         'text_start': text[:600],

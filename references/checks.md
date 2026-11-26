@@ -5,7 +5,7 @@ Each check says what to look for, why it matters (and how strong the evidence is
 Contents: [Critical](#critical-the-agent-cannot-read-the-site) · [High](#high-the-agent-reads-but-answers-wrong-or-incomplete) · [Medium](#medium-hygiene-and-findability) · [Low](#low-standards-with-no-measured-effect) · [Not for these sites](#not-for-these-sites) · [Traps](#traps-we-fell-into)
 
 Evidence labels used below:
-- **Measured**: Vercel and Ora, "Make your site readable by AI agents" (Aug 2026, 1,033 agent runs on 25 sites).
+- **Measured**: Vercel and Ora, "Make your site readable by AI agents" (published 28 Aug 2026), from its controlled fetch probes: 190 probes on one documentation site served in 19 configurations, each read by two clients, a plain fetch without JavaScript and one that runs JavaScript. The guide's 1,033 agent runs on 25 sites are a separate trace study; the findings on blocking and on `llms.txt` cited below come from the probes, not from those runs.
 - **Observed**: reproduced with a real agent reader (Claude WebFetch, a browser agent's page reader, an agent run by a checker) on a real site.
 - **Convention**: a standard or a checker rule with no measured effect on answers.
 
@@ -14,7 +14,7 @@ Evidence labels used below:
 ## Critical: the agent cannot read the site
 
 ### C1. The answer is in the HTML without JavaScript, every time
-- **Why.** Most agents that fetch a page do not run JavaScript. If the text appears only after scripts run (single-page apps, builder setups that render client-side; Readymag observed below, Tilda and Wix not tested), the agent gets an empty shell, at best the page title. Measured: JS-only answers were one of the two things that actually blocked agents.
+- **Why.** Most agents that fetch a page do not run JavaScript. If the text appears only after scripts run (single-page apps, builder setups that render client-side; Readymag observed below, Tilda and Wix not tested), the agent gets an empty shell, at best the page title. Measured: an answer available only through JavaScript was lost to the fetch-only client (0 of 5) and reached the client that runs JavaScript (5 of 5). So this blocks the agents that fetch without JavaScript, not every agent.
 - **Builders differ, and one fetch can mislead.** Observed on 26 Nov 2026 (curl with up to nine bot user agents, plus Claude WebFetch):
   - **Framer** served full text to every user agent tried (a browser, Claude-User, ChatGPT-User, GPTBot) on four sites, and a Markdown version on request (`Accept: text/markdown` or `?md`, tested on one site).
   - **Readymag** served an empty shell to 10 of 10 showcase sites on the first pass: no body text, only `<title>` and, on 7 of 10, a meta description. Sometimes it served pre-rendered text to bots, but not reliably: the same user agent got text on one try and an empty page on the next (four tries in a row: 3, 2, 1 and 0 of 4 with text on four sites). WebFetch got only the page title on three of four Readymag sites, not even the meta description (a 219-character description in the raw HTML came through as the 9-character title).
@@ -23,12 +23,12 @@ Evidence labels used below:
 - **Fix.** Server-side rendering or a static build (Astro, Eleventy, Next.js static export, Hugo). On site builders, turn on "SEO/static HTML" options if they exist; otherwise publish a plain HTML page or a text version (`llms.txt`, per-page `.md`) and link it from the HTML head and body. If the platform cannot serve text reliably, say so plainly: the fix is a move, not a tweak. Until then, on Readymag-like platforms, assume the agent sees only the page title: put the full name and a short "who I am and what I do" into the SEO title of every page (not "Portfolio"), write the full sentence into the description too (search snippets and some readers use it), and keep the key facts on a profile that serves text reliably.
 
 ### C2. Agents are not blocked
-- **Why.** Measured: a 403 is the other thing that blocks agents. `robots.txt` with `Disallow: /` for `*` or for AI agents stops well-behaved ones. Bot protection (Cloudflare "Block AI bots", WAF rules, challenge pages) stops them silently.
+- **Why.** Measured: a 403 to agent user agents blocked both clients, with and without JavaScript (0 of 5 each). `robots.txt` with `Disallow: /` for `*` or for AI agents stops well-behaved ones. Bot protection (Cloudflare "Block AI bots", WAF rules, challenge pages) stops them silently.
 - **Check.** `inspect_site.py`: `robots.txt` "Disallow / for", the `AI user agents` line (403 or a challenge page), `X-Robots-Tag`. On a hosting platform (readymag.website, notion.site, a builder subdomain) the platform's `robots.txt` applies and the owner may not control it: say that.
 - **Fix.** Allow the agents the owner wants (user-facing fetchers such as ChatGPT-User and Claude-User fetch on a person's request; crawlers such as GPTBot and ClaudeBot build indexes and training sets: the owner decides). In Cloudflare, check Security → Bots and AI Crawl Control. Curl cannot see IP-based blocks: the bot logs can.
 
 ### C3. A missing page returns 404, not the home page
-- **Why.** Measured as guidance: a "soft 404" (any path answers 200 with the home page) makes an agent that guessed a URL (`/about`, `/robots.txt`, `/llms.txt`) take the home page for an answer, and checkers think files exist that do not.
+- **Why.** Advice in the same guide (a recommendation, not a measurement): a "soft 404" (any path answers 200 with the home page) makes an agent that guessed a URL (`/about`, `/robots.txt`, `/llms.txt`) take the home page for an answer, and checkers think files exist that do not.
 - **Check.** `inspect_site.py`: "Unknown path … 200 <-- soft 404".
 - **Fix.** A real `404.html`. Cloudflare Pages without a top-level `404.html` serves `index.html` with 200; Netlify and Vercel need their own 404 file or config. Make the 404 page useful: a sentence and links to the main pages.
 
@@ -94,7 +94,7 @@ Evidence labels used below:
 ## Medium: hygiene and findability
 
 ### M1. One address and a canonical
-- **Why.** Copies of the site on `www`, the platform subdomain (`*.pages.dev`, `*.netlify.app`, `*.vercel.app`) or `http` split search results and old copies survive. Measured as guidance: one canonical page per answer.
+- **Why.** Copies of the site on `www`, the platform subdomain (`*.pages.dev`, `*.netlify.app`, `*.vercel.app`) or `http` split search results and old copies survive. Advice in the same guide: one canonical page per answer.
 - **Check.** `inspect_site.py`: "Host variants" should all end on one host; `canonical` on every page (not on the 404).
 - **Fix.** 301 redirects at the host level (Cloudflare Bulk Redirects with "include subdomains" off keeps branch previews working), `<link rel="canonical">` on every page.
 
@@ -107,7 +107,7 @@ Evidence labels used below:
 - **Fix.** The owner verifies the domain in Google Search Console and Bing Webmaster Tools, submits the sitemap (a Domain property needs the full sitemap URL), requests indexing of the home page. Bing's "Import from GSC" may not see Domain properties: add the site manually.
 
 ### M4. A plain-text layer for agents
-- **Why.** Convention with mixed evidence: the measured study found `llms.txt` and `.md` versions did not change results when the HTML already held the answer. They still help with long or visual sites, and when a visitor's prompt points to them.
+- **Why.** Convention with mixed evidence: in the controlled probes, adding `llms.txt`, JSON-LD, sitemaps and Markdown mirrors did not change whether the clients could retrieve an answer the server-rendered HTML already held. They still help with long or visual sites, and when a visitor's prompt points to them.
 - **Check / fix.** `/llms.txt` as a short index with a card per page and links; full text per page as `.md`; `<link rel="alternate" type="text/markdown">` on each page. Facts in it must match the pages (H3). Links for humans go to pages, not to `.md`.
 
 ### M5. Controls have names; decorations are hidden from screen readers
@@ -147,7 +147,7 @@ Cheap, invisible, counted by checkers; their effect on agent answers is not meas
 
 Name them in the report with one reason each, so the owner does not chase checker points:
 - **MCP server cards, OAuth discovery, API catalog, Agent Skills index, WebMCP, auth.md, agentic commerce protocols**: for products where an agent acts (logs in, books, buys). A business-card site has one action: write to the owner, which a mailto link and good text cover.
-- **Markdown by `Accept` header, Markdown 404 bodies**: need server code or a paid edge feature (Cloudflare "Markdown for Agents" is Pro and up); measured no gain when the HTML already holds the answer.
+- **Markdown by `Accept` header, Markdown 404 bodies**: need server code or a paid edge feature (Cloudflare "Markdown for Agents" is Pro and up); no gain in the controlled probes when the HTML already holds the answer.
 - **Trust pages** (`/about`, `/contact`, `/privacy` with 500+ characters): a check for businesses that agents vet before recommending; a portfolio's home page is its about page.
 
 ---

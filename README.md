@@ -95,7 +95,7 @@ You can also copy the folder to `.claude/skills/` in a project. Then just ask, f
 
 ## Where the rules come from
 
-- Vercel and Ora, *Make your site readable by AI agents* (2026): 1,033 agent runs on 25 sites.
+- Vercel and Ora, *Make your site readable by AI agents* (2026): 1,033 agent runs on 25 sites and 190 controlled fetch probes. The findings on blocking and on `llms.txt` come from the probes.
 - web.dev, *AI agent site UX*.
 - Lù et al., *Build the web for agents, not agents for the web* (arXiv 2506.10953).
 - Our own tests on dariaprojects.com with Claude's fetch tool, a browser agent's page reader and the agent run by is-agentic.com.
