@@ -34,7 +34,7 @@ Every finding is confirmed with a real reader before it goes in the report. That
 
 ## Why there is no score
 
-On the same day, the same portfolio scored **74/100** on is-agentic.com and **25/100** on isitagentready.com. Neither was wrong. The first asks whether an agent can read the site and answer about it; the second asks whether protocols for agent *actions* are in place. A third invented number would look precise without meaning anything. So the headline is the outcome that matters: **did the agent answer correctly?**
+On the same day, the same portfolio scored **74/100** on is-agentic.com and **25/100** on isitagentready.com. Neither was wrong. The first scores whether an agent can reach and read the site; the second scores readiness signals, from robots files and sitemaps to protocols for agents that *act* (MCP, OAuth, API catalogs), which a portfolio does not need. A third invented number would look precise without meaning anything. So the headline is the outcome that matters: **did the agent answer correctly?**
 
 ## A real case: dariaprojects.com
 
@@ -93,10 +93,18 @@ You can also copy the folder to `.claude/skills/` in a project. Then just ask, f
 
 **Claude.ai:** zip the folder and upload it as a skill in Settings → Capabilities. Some steps need tools Claude.ai may not have (running the script, a browser); the skill says what it could not check.
 
+**Codex:** the skill follows the open Agent Skills format, so Codex can load the same folder:
+
+```bash
+git clone https://github.com/dariavedernikovain/readable-by-agents ~/.agents/skills/readable-by-agents
+```
+
+Or put it in `.agents/skills/` in a repository. It has not been tested in Codex yet; steps that need a tool Codex lacks are listed in the report under what could not be checked.
+
 ## Where the rules come from
 
 - Vercel and Ora, *Make your site readable by AI agents* (2026): 1,033 agent runs on 25 sites and 190 controlled fetch probes. The findings on blocking and on `llms.txt` come from the probes.
-- web.dev, *AI agent site UX*.
+- web.dev, *Build agent-friendly websites*.
 - Lù et al., *Build the web for agents, not agents for the web* (arXiv 2506.10953).
 - Our own tests on dariaprojects.com with Claude's fetch tool, a browser agent's page reader and the agent run by is-agentic.com.
 - A builder test, November 2026, on four Framer sites and ten Readymag sites. Framer served full text every time; Readymag served it only some of the time.

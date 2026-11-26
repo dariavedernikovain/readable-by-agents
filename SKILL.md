@@ -30,7 +30,7 @@ Run each step and keep what each reader saw. Different readers see different thi
 
 Some steps need tools that are not everywhere: running the script, fetching pages, a separate subagent, a browser. If a step cannot run, or runs only in part, keep going with the others and note which step, why, and what it leaves unconfirmed. The report must state this (section 5): an owner who reads "4 of 5 correct" has to know whether a fresh agent or a primed one answered, and which checks never ran.
 
-a. **Raw HTML, what an agent without JavaScript gets.** Run `python3 scripts/inspect_site.py <url> [--page /key-page/]` (standard library only). It reports visible text size, where the main content starts in the HTML, metadata, images and their alt text, glued line breaks, placeholders, email obfuscation, links to documents in online editors, `robots.txt`, `sitemap.xml`, `llms.txt`, the 404 behaviour, host variants, responses to AI user agents and whether repeated fetches get the same text (some builders serve text to bots only some of the time). Pick one key inner page (a case, a project, an about page) for `--page`.
+a. **Raw HTML, what an agent without JavaScript gets.** Run `python3 scripts/inspect_site.py <url> [--page /key-page/]` (standard library only; the path is relative to this skill's folder, not to the current directory). It reports visible text size, where the main content starts in the HTML, metadata, images and their alt text, glued line breaks, placeholders, email obfuscation, links to documents in online editors, `robots.txt`, `sitemap.xml`, `llms.txt`, the 404 behaviour, host variants, responses to AI user agents and whether repeated fetches get the same text (some builders serve text to bots only some of the time). Pick one key inner page (a case, a project, an about page) for `--page`.
 
 b. **A real reader.** Fetch the home page and the key page with the agent reader you have (WebFetch, or a web-fetch subagent). Note what comes through, in what order, and what is missing or glued. This is how most chat assistants read a page. If the script flags unstable text, or the site is on a builder, fetch the home page a second time a few minutes later: one good fetch can hide a platform that serves text only some of the time.
 
@@ -40,7 +40,7 @@ d. **The accessibility tree, if a browser tool is available.** This is what brow
 
 e. **Search presence, optional.** `site:domain` on Bing and Google: is the site there, and does the snippet match the current text? Agents with search answer from the index.
 
-f. **A second opinion, only with consent.** Offer is-agentic.com (Vercel and Ora), which runs its own agent on the site. Its report is public and the domain goes to a third party, so ask first. Don't use checkers that score protocol adoption for products (MCP, OAuth, commerce): they will rate a good portfolio low and push the owner toward irrelevant work.
+f. **A second opinion, only with consent.** Offer is-agentic.com (by Vercel, powered by Ora). It scores technical checks on whether an agent can reach and read the site, and shows one observed agent journey next to the score. Its report is public and the domain goes to a third party, so ask first. Don't use checkers built around protocols for agents that act (MCP, OAuth discovery, API catalog, WebMCP), such as isitagentready.com: they will rate a good portfolio low and push the owner toward irrelevant work.
 
 ## 3. Confirm before you report
 
