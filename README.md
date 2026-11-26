@@ -91,7 +91,7 @@ You can also copy the folder to `.claude/skills/` in a project. Then just ask, f
 - "Check how readable my studio's site is for AI agents and tell me what to fix first."
 - "Here's my personal site's repo. Make it agent-ready."
 
-**Claude.ai:** zip the folder and upload it as a skill in Settings → Capabilities. Some steps need tools Claude.ai may not have (running the script, a browser); the skill says what it could not check.
+**Claude.ai:** zip the `readable-by-agents` folder itself (the folder at the root of the zip) and upload it under Plugins → Add → Upload plugin. Claude.ai accepts a skill as a `.zip` and lists it as a plugin in your uploads (checked in November 2026). Some steps need tools Claude.ai may not have (running the script, a browser); the skill says what it could not check.
 
 **Codex:** the skill follows the open Agent Skills format, so Codex can load the same folder:
 
